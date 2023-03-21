@@ -49,11 +49,12 @@ void push_front(list* list, int data)
 
 void pop_back(list* list)
 {
-	node* temp = list->tail;
-
 	if (list->size == 0)
 		return;
-	else if (list->size == 1)
+	
+	node* temp = list->tail;
+
+	if (list->size == 1)
 	{
 		list->head = NULL;
 		list->tail = NULL;
@@ -69,11 +70,12 @@ void pop_back(list* list)
 
 void pop_front(list* list)
 {
-	node* temp = list->head;
-
 	if (list->size == 0)
 		return;
-	else if (list->size == 1)
+
+	node* temp = list->head;
+
+	if (list->size == 1)
 	{
 		list->head = NULL;
 		list->tail = NULL;
@@ -87,22 +89,22 @@ void pop_front(list* list)
 	--list->size;
 }
 
-node* find_node(list* list, node* target)
+node* find(list* list, node* target)
 {
-	node* cur_node = list->head;
+	node* cur = list->head;
 
-	while (cur_node != NULL)
+	while (cur != NULL)
 	{
-		if (cur_node == target)
-			return cur_node;
-		cur_node = cur_node->next;
+		if (cur == target)
+			return cur;
+		cur = cur->next;
 	}
 	return NULL;
 }
 
 void insert(list* list, node* target, int data)
 {
-	if (list->size == 0 || !find_node(list, target))
+	if (list->size == 0 || !find(list, target))
 		return;
 
 	node* new_node = (node*)malloc(sizeof(node));
@@ -116,49 +118,40 @@ void insert(list* list, node* target, int data)
 	if (target == list->head)
 		list->head = new_node;
 	++list->size;
+	return;
 }
 
-void erase_node(list* list, node* target)
+node* erase(list* list, node* target)
 {
-	if (list->size == 0 || !find_node(list, target))
-		return;
-	else if (list->size == 1)
-	{
-		list->head = NULL;
-		list->tail = NULL;
-	}
-	else if (target == list->head)
-	{
-		list->head->next->prev = NULL;
-		list->head = list->head->next;
-	}
+	if (list->size == 0 || !find(list, target))
+		return NULL;
+
+	node* next = target->next;
+
+	if (list->size == 1 || target == list->head)
+		pop_front(list);
 	else if (target == list->tail)
-	{
-		list->tail->prev->next = NULL;
-		list->tail = list->tail->prev;
-	}
+		pop_back(list);
 	else
 	{
 		target->prev->next = target->next;
 		target->next->prev = target->prev;
+		free(target);
+		--list->size;
 	}
-	free(target);
-	--list->size;
+	return next;
 }
 
-void delete_list(list* list)
+void clear(list* list)
 {
-	node* cur_node = list->head;
-	node* next_node;
+	node* cur = list->head;
+	node* next;
 
-	if (list == NULL)
-		return;
-	while (cur_node != NULL)
+	while (cur != NULL)
 	{
-		next_node = cur_node->next;
-		free(cur_node);
-		cur_node = NULL;
-		cur_node = next_node;
+		next = cur->next;
+		free(cur);
+		cur = next;
 	}
-	free(list);
+	init_list(list);
 }
