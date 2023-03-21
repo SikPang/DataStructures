@@ -1,6 +1,6 @@
 #include "LinkedList.h"
 
-void init_list(list* list)
+void initialize(list* list)
 {
 	list->head = NULL;
 	list->tail = NULL;
@@ -153,5 +153,5 @@ void clear(list* list)
 		free(cur);
 		cur = next;
 	}
-	init_list(list);
+	initialize(list);
 }

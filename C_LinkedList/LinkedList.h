@@ -17,7 +17,7 @@ typedef struct list
 	int size;
 }list;
 
-void init_list(list* list);
+void initialize(list* list);
 void push_back(list* list, int data);
 void push_front(list* list, int data);
 void pop_back(list* list);
