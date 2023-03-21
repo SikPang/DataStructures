@@ -155,3 +155,15 @@ void clear(list* list)
 	}
 	initialize(list);
 }
+
+void clear_recur(list* list, node* cur)
+{
+	if (cur == NULL)
+	{
+		initialize(list);
+		return;
+	}
+
+	clear(list, cur->next);
+	free(cur);
+}

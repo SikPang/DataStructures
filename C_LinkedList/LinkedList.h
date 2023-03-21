@@ -26,5 +26,6 @@ node* find(list* list, node* target);
 void insert(list* list, node* target, int data);
 node* erase(list* list, node* target);
 void clear(list* list);
+void clear_recur(list* list, node* cur);
 
 #endif
