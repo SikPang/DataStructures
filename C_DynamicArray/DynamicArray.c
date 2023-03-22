@@ -28,7 +28,6 @@ void reserve(vector* vec, int capacity)
 		return;
 	
 	re_allocate(vec, capacity);
-	vec->capacity = capacity;
 }
 
 void push_back(vector* vec, int data)
