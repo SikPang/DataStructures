@@ -1,138 +1,102 @@
 #include <stdio.h>
 #include "DynamicArray.h"
 
-// Test for Linkedmy_list.c
+// Test for DynamicArray.c
 
-void print_list(list* my_list)
+void print_vector(vector* vec)
 {
-	node* cur = my_list->head;
+	printf("[size:%d, cap:%d] ", vec->size, vec->capacity);
+	
+	for (int i = 0; i < vec->size; ++i)
+		printf("%d ", vec->data[i]);
 
-	printf("[size:%d] ", my_list->size);
-	while (cur != NULL)
-	{
-		printf("%d ", cur->data);
-		cur = cur->next;
-	}
 	printf("\n");
 }
 
 int main()
 {
-	list my_list;
+	vector vec;
 
 	printf("----- initialize -----\n");
-	initialize(&my_list);
-	print_list(&my_list);
-
+	initialize(&vec);
+	print_vector(&vec);
 
 	printf("\n----- push_back -----\n");
-	push_back(&my_list, 1);
-	print_list(&my_list);
-
-	push_back(&my_list, 2);
-	print_list(&my_list);
-
-	push_back(&my_list, 3);
-	print_list(&my_list);
-
-	push_back(&my_list, 4);
-	print_list(&my_list);
-
+	for (int i=1; i<5; ++i)
+	{
+		push_back(&vec, i);
+		print_vector(&vec);
+	}
 
 	printf("\n----- insert -----\n");
-	for (node* i = my_list.head; i != NULL; i = i->next)
-	{
-		if (i == my_list.head)
-			insert(&my_list, my_list.head, 10);
-		if (i->data == 3)
-			insert(&my_list, i, 20);
-		else
-			continue;
-		print_list(&my_list);
-	}
-	print_list(&my_list);
+	insert(&vec, vec.size / 2, 5);
+	print_vector(&vec);
 
+	insert(&vec, 0, 6);
+	print_vector(&vec);
 
-	printf("\n----- pop_back -----\n");
-	pop_back(&my_list);
-	print_list(&my_list);
-
-	pop_back(&my_list);
-	print_list(&my_list);
-
-
-	printf("\n----- push_front -----\n");
-	push_front(&my_list, 5);
-	print_list(&my_list);
-
-	push_front(&my_list, 6);
-	print_list(&my_list);
-
-	push_front(&my_list, 7);
-	print_list(&my_list);
-
-	push_front(&my_list, 8);
-	print_list(&my_list);
-
-
-	printf("\n----- find -----\n");
-	node* find1 = my_list.head->next->next; 
-	printf("%p\n", find(&my_list, find1));
-
-	node* find2 = (node*)malloc(sizeof(node));
-	printf("%p\n", find(&my_list, find2));
-	free(find2);
-
-	list test_list;
-	initialize(&test_list);
-	push_back(&test_list, 3);
-	node* find3 = test_list.head;
-	printf("%p\n", find(&my_list, find3));
-	pop_back(&test_list);
-
-
-	printf("\n----- pop_front -----\n");
-	pop_front(&my_list);
-	print_list(&my_list);
-
-	pop_front(&my_list);
-	print_list(&my_list);
-
+	insert(&vec, vec.size, 7);
+	print_vector(&vec);
 
 	printf("\n----- erase -----\n");
-	for (node* i = my_list.head; i != NULL; )
+	erase(&vec, 0);
+	print_vector(&vec);
+
+	erase(&vec, vec.size - 1);
+	print_vector(&vec);
+
+	erase(&vec, vec.size / 2);
+	print_vector(&vec);
+
+	printf("\n----- pop_back -----\n");
+	for (int i=1; i<3; ++i)
 	{
-		if (i->data == 10 || i->data == 20)
-		{
-			i = erase(&my_list, i);
-			print_list(&my_list);
-		}
-		else
-			i = i->next;
+		pop_back(&vec);
+		print_vector(&vec);
 	}
 
-	erase(&my_list, my_list.head);
-	print_list(&my_list);
-
-	erase(&my_list, my_list.tail);
-	print_list(&my_list);
-
+	printf("\n----- reserve -----\n");
+	reserve(&vec, 100);
+	print_vector(&vec);
 
 	printf("\n----- clear -----\n");
-	clear(&my_list);
-	print_list(&my_list);
-
+	clear(&vec);
+	print_vector(&vec);
 
 	printf("\n----- edge cases -----\n");
-	clear(&my_list);			// double clear
-	pop_back(&my_list);			// pop_back at empty list
-	pop_front(&my_list);		// pop_front at empty list
-	insert(&my_list, NULL, 3);	// insert 3 before "NULL" node
-	erase(&my_list, NULL);		// erase "NULL" node at list
-	find(&my_list, NULL);		// find "NULL" node at list
+	clear(&vec);					// double clear
+	print_vector(&vec);
 
-	push_back(&my_list, 1);		// use list after clear
-	print_list(&my_list);
-	pop_back(&my_list);			// just pop
-	print_list(&my_list);
+	reserve(&vec, -1);				// reserve by lower than size
+	print_vector(&vec);
+
+	pop_back(&vec);					// pop at empty vector
+	print_vector(&vec);
+
+	insert(&vec, -1, 3);			// insert at lower than 0
+	print_vector(&vec);
+
+	insert(&vec, vec.size + 1, 3);	// insert at higher than size
+	print_vector(&vec);
+
+	erase(&vec, -1);				// erase at lower than 0
+	print_vector(&vec);
+
+	erase(&vec, vec.size);			// erase at lower than index
+	print_vector(&vec);
+
+	for (int i=1; i<3; ++i)
+	{
+		push_back(&vec, i);			// use after clear
+		print_vector(&vec);
+	}
+
+	reserve(&vec, 10);
+	print_vector(&vec);
+
+	for (int i=3; i<5; ++i)
+	{
+		push_back(&vec, i);			// use after reserve
+		print_vector(&vec);
+	}
 }

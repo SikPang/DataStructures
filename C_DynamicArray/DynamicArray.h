@@ -11,6 +11,11 @@ typedef struct vector
 } vector;
 
 void initialize(vector* vec);
-void reserve(vector* vec, int size);
+void reserve(vector* vec, int capacity);
+void push_back(vector* vec, int data);
+void pop_back(vector* vec);
+void insert(vector* vec, int index, int data);
+void erase(vector* vec, int index);
+void clear(vector* vec);
 
 #endif
