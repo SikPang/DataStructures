@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "BinarySearchTree.h"
 
 void print_tree(node* cur)
@@ -5,11 +6,11 @@ void print_tree(node* cur)
 	if (cur == NULL)
 		return ;
 	
-	print_all(cur->lchild);
+	print_tree(cur->lchild);
 	
-	printf("%s=%s\n", cur->data->key, cur->data->value);
+	printf("%d : %d\n", cur->data->first, cur->data->second);
 	
-	print_all(cur->rchild);
+	print_tree(cur->rchild);
 }
 
 int main()

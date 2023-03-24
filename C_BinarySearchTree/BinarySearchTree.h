@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include "Stack.h"
-#include "pair.h"
+#include "Pair.h"
 
 typedef struct node
 {
