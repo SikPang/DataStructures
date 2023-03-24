@@ -2,18 +2,15 @@
 #define BINARYSEARCHTREE_H
 
 #include <stdlib.h>
-
-typedef struct data
-{
-	int key;
-	int value;
-} data;
+#include <stdbool.h>
+#include "Stack.h"
+#include "pair.h"
 
 typedef struct node
 {
-	struct node* l_child;
-	struct node* r_child;
-	data data;
+	struct node* lchild;
+	struct node* rchild;
+	pair* data;
 } node;
 
 typedef struct tree
@@ -22,5 +19,10 @@ typedef struct tree
 	int size;
 }	tree;
 
+void initialize(tree* tree);
+pair* find(tree* tree, int key);
+void insert(tree* tree, pair* data);
+void erase(tree* tree, int key);
+void clear(tree* tree);
 
 #endif

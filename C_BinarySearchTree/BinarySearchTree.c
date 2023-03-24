@@ -6,173 +6,146 @@ void initialize(tree* tree)
 	tree->size = 0;
 }
 
-void	free_fruit(node* fruit)
-{
-	free(fruit->data.ev.name);
-	free(fruit->data.ev.value);
-	free(fruit);
-}
-
-node* find_env(tree* envs, char *name)
+pair* find(tree* tree, int key)
 {
 	node* cur;
-	int		cmp;
 
-	if (envs->root == NULL)
-		return (NULL);
-	cur = envs->root;
-	while (cur != NULL && name != NULL)
+	cur = tree->root;
+	while (cur != NULL)
 	{
-		cmp = ft_strcmp(cur->data.ev.name, name);
-		if (cmp == 0)
-			return (cur);
-		else if (cmp < 0)
+		if (key > cur->data->first)
 			cur = cur->rchild;
-		else
+		else if (key < cur->data->first)
 			cur = cur->lchild;
+		else
+			return (cur->data);
 	}
 	return (NULL);
 }
 
-void	print_envs(node* cur, _Bool is_export)
+void insert(tree* tree, pair* data)
 {
-	if (cur == NULL)
-		return ;
-	print_envs(cur->lchild, is_export);
-	if (is_export == TRUE)
+	bool is_lchild;
+	node* cur = tree->root;
+	node* new_node = (node*)malloc(sizeof(node));
+
+	new_node->data = data;
+	new_node->lchild = NULL;
+	new_node->rchild = NULL;
+
+	while (cur != NULL)
 	{
-		printf("declare -x ");
-		if (cur->data.ev.value == NULL)
-			printf("%s\n", cur->data.ev.name);
+		if (data->first > cur->data->first)
+		{
+			if (cur->rchild == NULL)
+			{
+				is_lchild = false;
+				break;
+			}
+			cur = cur->rchild;
+		}
+		else if (data->first < cur->data->first)
+		{
+			if (cur->lchild == NULL)
+			{
+				is_lchild = true;
+				break;
+			}
+			cur = cur->lchild;
+		}
 		else
-			printf("%s=\"%s\"\n", cur->data.ev.name, cur->data.ev.value);
+			return;
 	}
-	else
-	{
-		if (cur->data.ev.value != NULL)
-			printf("%s=%s\n", cur->data.ev.name, cur->data.ev.value);
-	}
-	print_envs(cur->rchild, is_export);
-}
-
-static _Bool	insert_env_recur(node* cur, node* new)
-{
-	int		cmp;
 
 	if (cur == NULL)
-		return (TRUE);
-	cmp = ft_strcmp(cur->data.ev.name, new->data.ev.name);
-	if (cmp < 0)
-	{
-		if (insert_env_recur(cur->rchild, new))
-			cur->rchild = new;
-	}
+		tree->root = new_node;
+	else if (is_lchild)
+		cur->lchild = new_node;
 	else
-	{
-		if (insert_env_recur(cur->lchild, new))
-			cur->lchild = new;
-	}
-	return (FALSE);
+		cur->rchild = new_node;
+	++tree->size;
 }
 
-void	insert_env(tree* tree, t_env_var ev)
-{
-	node* new;
-	node* cur;
-
-	if (tree->size >= 5000)
-		return ;
-	cur = find_env(tree, ev.name);
-	if (cur == NULL)
-	{
-		new = (node* )ft_calloc(1, sizeof(t_fruit));
-		new->data.ev = (t_env_var){ev.name, ev.value};
-		if (tree->root == NULL)
-			tree->root = new;
-		else
-			insert_env_recur(tree->root, new);
-		++(tree->size);
-	}
-	else if (ev.value != NULL)
-	{
-		free(cur->data.ev.name);
-		free(cur->data.ev.value);
-		cur->data.ev = (t_env_var){ev.name, ev.value};
-	}
-	else
-		free(ev.name);
-}
-
-static t_env_var	get_min_ev(node* cur)
+static pair* get_min_data(node* cur)
 {
 	while (cur->lchild != NULL)
 		cur = cur->lchild;
-	return (cur->data.ev);
+	
+	return (cur->data);
 }
 
-static node* terminate_env(tree* tree, node* cur)
+static node* terminate(tree* tree, node* cur)
 {
 	node* temp;
 
-	--(tree->size);
-	if (tree->size == 0)
+	if (tree->size == 1)
 		tree->root = NULL;
+
 	if (cur->rchild == NULL)
-	{
 		temp = cur->lchild;
-		if (cur == tree->root)
-			tree->root = temp;
-		free_fruit(cur);
-		return (temp);
-	}
 	else
-	{
 		temp = cur->rchild;
-		if (cur == tree->root)
-			tree->root = temp;
-		free_fruit(cur);
-		return (temp);
-	}
+
+	if (cur == tree->root)
+		tree->root = temp;
+
+	free(cur->data);
+	free(cur);
+	--(tree->size);
+	return (temp);
 }
 
-node* erase_env(tree* tree, node* cur, char *name)
+static node* recursion_erase(tree* tree, node* cur, int first)
 {
-	int			cmp;
-	t_env_var	temp_ev;
-
 	if (cur == NULL)
 		return (NULL);
-	cmp = ft_strcmp(cur->data.ev.name, name);
-	if (cmp < 0)
-		cur->rchild = erase_env(tree, cur->rchild, name);
-	else if (cmp > 0)
-		cur->lchild = erase_env(tree, cur->lchild, name);
+	
+	pair* temp;
+
+	if (first > cur->data->first)
+		cur->rchild = recursion_erase(tree, cur->rchild, first);
+	else if (first < cur->data->first)
+		cur->lchild = recursion_erase(tree, cur->lchild, first);
 	else
 	{
 		if (cur->lchild == NULL || cur->rchild == NULL)
-			return (terminate_env(tree, cur));
-		temp_ev = get_min_ev(cur->rchild);
-		free(cur->data.ev.name);
-		free(cur->data.ev.value);
-		cur->data.ev = (t_env_var){ft_strdup(temp_ev.name),
-			ft_strdup(temp_ev.value)};
-		cur->rchild = erase_env(tree, cur->rchild, temp_ev.name);
+			return (terminate(tree, cur));
+		temp = get_min_data(cur->rchild);
+		free(cur->data);
+		cur->data = temp;
+		cur->rchild = recursion_erase(tree, cur->rchild, temp->first);
 	}
 	return (cur);
 }
 
-static void	destroy_tree_ev_recur(node* cur)
+void erase(tree* tree, int first)
+{
+	recursion_erase(tree, tree->root, first);
+}
+
+void erase(tree* tree, int first)
+{
+	stack stack;
+
+	node* cur = tree->root;
+	while (cur != NULL)
+	{
+
+	}
+}
+
+static void recursion_clear(node* cur)
 {
 	if (cur == NULL)
 		return ;
-	destroy_tree_ev_recur(cur->lchild);
-	destroy_tree_ev_recur(cur->rchild);
-	free_fruit(cur);
+	
+	recursion_clear(cur->lchild);
+	recursion_clear(cur->rchild);
+	free(cur->data);
+	free(cur);
 }
 
-void	destroy_tree_ev(tree* *tree)
+void clear(tree* tree)
 {
-	destroy_tree_ev_recur((*tree)->root);
-	free(*tree);
-	*tree = NULL;
+	recursion_clear(tree->root);
 }
