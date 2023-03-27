@@ -46,10 +46,13 @@ static node* recursion_insert(tree* tree, node* cur, pair* data)
 
 		return new_node;
 	}
-	else if (data->key > cur->data->key)
+
+	if (data->key > cur->data->key)
 		cur->rchild = recursion_insert(tree, cur->rchild, data);
 	else if (data->key < cur->data->key)
 		cur->lchild = recursion_insert(tree, cur->lchild, data);
+	else
+		free(data);
 
 	return cur;
 }
