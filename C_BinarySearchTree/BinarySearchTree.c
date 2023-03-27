@@ -13,9 +13,9 @@ pair* find(tree* tree, int key)
 	cur = tree->root;
 	while (cur != NULL)
 	{
-		if (key > cur->data->first)
+		if (key > cur->data->key)
 			cur = cur->rchild;
-		else if (key < cur->data->first)
+		else if (key < cur->data->key)
 			cur = cur->lchild;
 		else
 			return (cur->data);
@@ -23,120 +23,104 @@ pair* find(tree* tree, int key)
 	return (NULL);
 }
 
-// void insert(tree* tree, pair* data)
-// {
-// 	bool is_lchild;
-// 	node* cur = tree->root;
-// 	node* new_node = (node*)malloc(sizeof(node));
+static node* get_new_node(pair* data)
+{
+	node* new_node = (node*)malloc(sizeof(node));
 
-// 	new_node->data = data;
-// 	new_node->lchild = NULL;
-// 	new_node->rchild = NULL;
+	new_node->lchild = NULL;
+	new_node->rchild = NULL;
+	new_node->data = data;
 
-// 	while (cur != NULL)
-// 	{
-// 		if (data->first > cur->data->first)
-// 		{
-// 			if (cur->rchild == NULL)
-// 			{
-// 				is_lchild = false;
-// 				break;
-// 			}
-// 			cur = cur->rchild;
-// 		}
-// 		else if (data->first < cur->data->first)
-// 		{
-// 			if (cur->lchild == NULL)
-// 			{
-// 				is_lchild = true;
-// 				break;
-// 			}
-// 			cur = cur->lchild;
-// 		}
-// 		else
-// 			return;
-// 	}
+	return new_node;
+}
 
-// 	if (cur == NULL)
-// 		tree->root = new_node;
-// 	else if (is_lchild)
-// 		cur->lchild = new_node;
-// 	else
-// 		cur->rchild = new_node;
-// 	++tree->size;
-// }
+static node* recursion_insert(tree* tree, node* cur, pair* data)
+{
+	if (cur == NULL)
+	{
+		node* new_node = get_new_node(data);
+
+		if (tree->size == 0)
+			tree->root = new_node;
+		++tree->size;
+
+		return new_node;
+	}
+	else if (data->key > cur->data->key)
+		cur->rchild = recursion_insert(tree, cur->rchild, data);
+	else if (data->key < cur->data->key)
+		cur->lchild = recursion_insert(tree, cur->lchild, data);
+
+	return cur;
+}
 
 void insert(tree* tree, pair* data)
 {
-	
+	recursion_insert(tree, tree->root, data);
 }
 
-// static pair* get_min_data(node* cur)
-// {
-// 	while (cur->lchild != NULL)
-// 		cur = cur->lchild;
-	
-// 	return (cur->data);
-// }
-
-// static node* terminate(tree* tree, node* cur)
-// {
-// 	node* temp;
-
-// 	if (tree->size == 1)
-// 		tree->root = NULL;
-
-// 	if (cur->rchild == NULL)
-// 		temp = cur->lchild;
-// 	else
-// 		temp = cur->rchild;
-
-// 	if (cur == tree->root)
-// 		tree->root = temp;
-
-// 	free(cur->data);
-// 	free(cur);
-// 	--(tree->size);
-// 	return (temp);
-// }
-
-// static node* recursion_erase(tree* tree, node* cur, int key)
-// {
-// 	if (cur == NULL)
-// 		return (NULL);
-	
-// 	pair* temp;
-
-// 	if (key > cur->data->first)
-// 		cur->rchild = recursion_erase(tree, cur->rchild, key);
-// 	else if (key < cur->data->first)
-// 		cur->lchild = recursion_erase(tree, cur->lchild, key);
-// 	else
-// 	{
-// 		if (cur->lchild == NULL || cur->rchild == NULL)
-// 			return (terminate(tree, cur));
-// 		temp = get_min_data(cur->rchild);
-// 		free(cur->data);
-// 		cur->data = temp;
-// 		cur->rchild = recursion_erase(tree, cur->rchild, temp->first);
-// 	}
-// 	return (cur);
-// }
-
-// void erase(tree* tree, int first)
-// {
-// 	recursion_erase(tree, tree->root, first);
-// }
-
-void erase(tree* tree, int first)
+static node* get_simillar_node(node* cur)
 {
-	stack stack;
+	cur = cur->lchild;
 
-	node* cur = tree->root;
-	while (cur != NULL)
+	while (cur->rchild != NULL)
+		cur = cur->rchild;
+	
+	return cur;
+}
+
+static node* recursion_erase(tree* tree, node* cur, int key)
+{
+	if (cur == NULL)
+		return NULL;
+
+	if (key == cur->data->key)
 	{
+		if (cur->lchild == NULL || cur->rchild == NULL)
+		{
+			node* temp;
+			
+			if (cur->lchild == NULL)
+				temp = cur->rchild;
+			else
+				temp = cur->lchild;
 
+			if (cur == tree->root)
+				tree->root = temp;
+			--tree->size;
+			
+			free(cur->data);
+			free(cur);
+			
+			return temp;
+		}
+		else
+		{
+			node* next = get_simillar_node(cur);
+
+			free(cur->data);
+			cur->data = make_pair(next->data->key, next->data->value);
+
+			cur->lchild = recursion_erase(tree, cur->lchild, next->data->key);
+		}
 	}
+	else if (key > cur->data->key)
+		cur->rchild = recursion_erase(tree, cur->rchild, key);
+	else if (key < cur->data->key)
+		cur->lchild = recursion_erase(tree, cur->lchild, key);
+
+	return cur;
+}
+// 1. 들어온 key로 데이터 찾기
+// 2-1. 찾은 노드의 자식이 없다면, 그 노드 지우고 NULL로 바꾸기
+// 2-2. 찾은 노드의 자식이 하나라면, 그 노드 지우고 자식으로 바꾸기
+// 2-3. 찾은 노드의 자식이 둘이라면
+//		제일 차가 적은 자식 찾기
+//		그 자식의 자식이 몇개인지에 따라 또 재귀적 반복
+
+void erase(tree* tree, int key)
+{
+	recursion_erase(tree, tree->root, key);
 }
 
 static void recursion_clear(node* cur)
@@ -153,4 +137,5 @@ static void recursion_clear(node* cur)
 void clear(tree* tree)
 {
 	recursion_clear(tree->root);
+	initialize(tree);
 }

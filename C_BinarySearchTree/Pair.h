@@ -5,10 +5,10 @@
 
 typedef struct pair
 {
-	int first;
-	int second;
+	int key;
+	int value;
 } pair;
 
-pair* make_pair(int fisrt, int second);
+pair* make_pair(int fisrt, int value);
 
 #endif

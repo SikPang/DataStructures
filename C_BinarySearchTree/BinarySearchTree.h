@@ -2,8 +2,6 @@
 #define BINARYSEARCHTREE_H
 
 #include <stdlib.h>
-#include <stdbool.h>
-#include "Stack.h"
 #include "Pair.h"
 
 typedef struct node

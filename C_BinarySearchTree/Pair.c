@@ -1,11 +1,11 @@
 #include "Pair.h"
 
-pair* make_pair(int fisrt, int second)
+pair* make_pair(int key, int value)
 {
 	pair* new_pair = (pair*)malloc(sizeof(pair));
 
-	new_pair->first = fisrt;
-	new_pair->second = second;
+	new_pair->key = key;
+	new_pair->value = value;
 
 	return new_pair;
 }
