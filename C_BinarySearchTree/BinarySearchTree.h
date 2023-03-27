@@ -2,6 +2,7 @@
 #define BINARYSEARCHTREE_H
 
 #include <stdlib.h>
+#include <stdio.h>
 #include "Pair.h"
 
 typedef struct node
@@ -15,12 +16,13 @@ typedef struct tree
 {
 	node *root;
 	int size;
-}	tree;
+} tree;
 
 void initialize(tree* tree);
 pair* find(tree* tree, int key);
 void insert(tree* tree, pair* data);
 void erase(tree* tree, int key);
 void clear(tree* tree);
+void print(tree* tree);
 
 #endif

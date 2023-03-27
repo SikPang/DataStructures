@@ -8,9 +8,8 @@ void initialize(tree* tree)
 
 pair* find(tree* tree, int key)
 {
-	node* cur;
+	node* cur = tree->root;
 
-	cur = tree->root;
 	while (cur != NULL)
 	{
 		if (key > cur->data->key)
@@ -18,27 +17,21 @@ pair* find(tree* tree, int key)
 		else if (key < cur->data->key)
 			cur = cur->lchild;
 		else
-			return (cur->data);
+			return cur->data;
 	}
-	return (NULL);
-}
 
-static node* get_new_node(pair* data)
-{
-	node* new_node = (node*)malloc(sizeof(node));
-
-	new_node->lchild = NULL;
-	new_node->rchild = NULL;
-	new_node->data = data;
-
-	return new_node;
+	return NULL;
 }
 
 static node* recursion_insert(tree* tree, node* cur, pair* data)
 {
 	if (cur == NULL)
 	{
-		node* new_node = get_new_node(data);
+		node* new_node = (node*)malloc(sizeof(node));
+
+		new_node->lchild = NULL;
+		new_node->rchild = NULL;
+		new_node->data = data;
 
 		if (tree->size == 0)
 			tree->root = new_node;
@@ -62,7 +55,7 @@ void insert(tree* tree, pair* data)
 	recursion_insert(tree, tree->root, data);
 }
 
-static node* get_simillar_node(node* cur)
+static node* get_similar_node(node* cur)
 {
 	cur = cur->lchild;
 
@@ -99,7 +92,7 @@ static node* recursion_erase(tree* tree, node* cur, int key)
 		}
 		else
 		{
-			node* next = get_simillar_node(cur);
+			node* next = get_similar_node(cur);
 
 			free(cur->data);
 			cur->data = make_pair(next->data->key, next->data->value);
@@ -114,12 +107,6 @@ static node* recursion_erase(tree* tree, node* cur, int key)
 
 	return cur;
 }
-// 1. 들어온 key로 데이터 찾기
-// 2-1. 찾은 노드의 자식이 없다면, 그 노드 지우고 NULL로 바꾸기
-// 2-2. 찾은 노드의 자식이 하나라면, 그 노드 지우고 자식으로 바꾸기
-// 2-3. 찾은 노드의 자식이 둘이라면
-//		제일 차가 적은 자식 찾기
-//		그 자식의 자식이 몇개인지에 따라 또 재귀적 반복
 
 void erase(tree* tree, int key)
 {
@@ -141,4 +128,21 @@ void clear(tree* tree)
 {
 	recursion_clear(tree->root);
 	initialize(tree);
+}
+
+void recursion_print(node* cur)
+{
+	if (cur == NULL)
+		return ;
+	
+	recursion_print(cur->lchild);
+	printf("(%d:%d) ", cur->data->key, cur->data->value);
+	recursion_print(cur->rchild);
+}
+
+void print(tree* tree)
+{
+	printf("[size:%d] ", tree->size);
+	recursion_print(tree->root);
+	printf("\n");
 }
