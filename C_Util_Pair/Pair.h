@@ -1,6 +1,8 @@
 #ifndef PAIR_H
 #define PAIR_H
 
+#include <stdlib.h>
+
 typedef struct pair
 {
 	int first;
