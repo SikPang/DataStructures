@@ -24,12 +24,12 @@ static unsigned int hasing(unsigned char *str)
 {
 	unsigned int hash = 5381;
 
-    while (*str != '\0')
+	while (*str != '\0')
 	{
-        hash = hash * 33 + *str;
+		hash = hash * 33 + *str;
 		++str;
 	}
-    return hash;
+	return hash;
 }
 
 static int find_idx(hash* hash, char* key)
@@ -49,7 +49,7 @@ static int find_idx(hash* hash, char* key)
 	return -1;
 }
 
-void initialize(hash *hash)
+void initialize(hash* hash)
 {
 	hash->bucket = NULL;
 	hash->capacity = 0;

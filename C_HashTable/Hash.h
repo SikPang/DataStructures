@@ -30,8 +30,7 @@ typedef struct hash
 	int capacity;
 } hash;
 
-void initialize(hash *hash);
-void reserve(hash *hash, int size);
+void initialize(hash* hash);
 void insert(hash* hash, pair* data);
 void erase(hash* hash, char* key);
 pair* find(hash* hash, char* key);
