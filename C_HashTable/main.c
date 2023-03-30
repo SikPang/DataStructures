@@ -9,13 +9,13 @@ void print_hash(hash* hash)
 		switch (hash->bucket[i].state)
 		{
 		case 0:
-			printf("[%d] EMPTY   , - : - (-)\n", i);
+			printf("[%d] EMPTY   , - : - [-]\n", i);
 			break;
 		case 1:
-			printf("[%d] USED    , %s : %d (%u)\n", i, hash->bucket[i].data->key, hash->bucket[i].data->value, hash->bucket[i].hash_value % hash->capacity);
+			printf("[%d] USED    , %s : %d [%u]\n", i, hash->bucket[i].data->key, hash->bucket[i].data->value, hash->bucket[i].hash_value % hash->capacity);
 			break;
 		case 2:
-			printf("[%d] DELETED , - : - (-)\n", i);
+			printf("[%d] DELETED , - : - [-]\n", i);
 			break;
 		}
 	}
@@ -28,11 +28,6 @@ void print_hash_find(pair* result)
 		printf("key not found\n");
 	else
 		printf("%d\n", result->value);
-}
-
-void v()
-{
-	system("leaks a.out");
 }
 
 int main()
@@ -100,16 +95,48 @@ int main()
 	print_hash_find(find(&hash, "world"));
 	print_hash_find(find(&hash, "nice"));	// pass DELETED node when find
 
-	insert(&hash, make_pair("world", 1));	// insert to DELETED node
+	insert(&hash, make_pair("world", 10));	// insert to DELETED node
 	print_hash(&hash);
 
-	insert(&hash, make_pair("hello", 2));
+	insert(&hash, make_pair("hello", 11));
 	print_hash(&hash);
 
+	insert(&hash, make_pair("abc", 12));
+	print_hash(&hash);
+
+	insert(&hash, make_pair("abcd", 13));
+	print_hash(&hash);
+
+	print_hash_find(find(&hash, "abcd"));	// pass DELETED node when find
+	printf("\n");
+
+	insert(&hash, make_pair("abcde", 14));	// re_allocate
+	print_hash(&hash);
+
+	print_hash_find(find(&hash, "abcd"));	// find again!
+	print_hash_find(find(&hash, "world"));
+	print_hash_find(find(&hash, "my name"));
+	print_hash_find(find(&hash, "is sikpang"));
+	print_hash_find(find(&hash, "abcdef"));
+	printf("\n");
 
 	printf("\n----- clear -----\n");
 	clear(&hash);
 	print_hash(&hash);
 
-	//atexit(v);
+	clear(&hash);			// double clear
+	print_hash(&hash);
+
+	insert(&hash, make_pair("abc", 1));	// use after clear
+	print_hash(&hash);
+
+	insert(&hash, make_pair("abcd", 2));
+	print_hash(&hash);
+
+	insert(&hash, make_pair("abcde", 3));
+	print_hash(&hash);
+
+	print_hash_find(find(&hash, "abc"));	// find again again!
+	print_hash_find(find(&hash, "abcd"));
+	print_hash_find(find(&hash, "world"));
 }

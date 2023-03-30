@@ -2,19 +2,17 @@
 
 static int get_next_prime(int num)
 {
-	while (1)
+	while (true)
 	{
-		long i = 2;
 		bool is_prime = true;
 
-		while (i * i <= num) 
+		for (long long i = 2; i * i <= num; ++i)
 		{
 			if (num % i == 0)
 			{
 				is_prime = false;
 				break;
 			}
-			++i;
 		}
 		if (is_prime)
 			return (num);
@@ -22,47 +20,33 @@ static int get_next_prime(int num)
 	}
 }
 
-static unsigned int get_hash(unsigned char *str)
+static unsigned int hasing(unsigned char *str)
 {
 	unsigned int hash = 5381;
-	int i = 0;
 
-    while (str[i] != '\0')
+    while (*str != '\0')
 	{
-        hash = hash * 33 + str[i];
-		++i;
+        hash = hash * 33 + *str;
+		++str;
 	}
     return hash;
 }
 
-static node get_new_bucket(pair* data, state state, int hash_value)
+static int find_idx(hash* hash, char* key)
 {
-	node new_node;
-
-	new_node.data = data;
-	new_node.state = state;
-	new_node.hash_value = hash_value;
-
-	return new_node;
-}
-
-static unsigned int get_index(hash* hash, char* key)
-{
-	unsigned int hash_value = get_hash((unsigned char*)key);
+	unsigned int hash_value = hasing((unsigned char*)key);
 	unsigned int idx = hash_value;
-	
-	while (hash->bucket[idx % hash->capacity].state != EMPTY)
+
+	for (int i = 0; i < hash->capacity; ++i, ++idx)
 	{
-		if (hash->bucket[idx % hash->capacity].state == USED
-			&& strcmp(hash->bucket[idx % hash->capacity].data->key, key) == 0)
-			break ;
-		++idx;
-		if (idx % hash->capacity == hash_value % hash->capacity)
-			return -1;
+		if (hash->bucket[idx % hash->capacity].state == EMPTY)
+			break;
+		if (hash->bucket[idx % hash->capacity].state == DELETED)
+			continue;
+		if (strcmp(hash->bucket[idx % hash->capacity].data->key, key) == 0)
+			return idx % hash->capacity;
 	}
-	if (hash->bucket[idx % hash->capacity].state == EMPTY)
-		return -1;
-	return idx % hash->capacity;
+	return -1;
 }
 
 void initialize(hash *hash)
@@ -74,10 +58,10 @@ void initialize(hash *hash)
 
 static void re_allocate(hash* hash, int size)
 {
-	int prev = hash->capacity;
+	int prev_capacity = hash->capacity;
 
 	if (size == 0)
-		hash->capacity = 7;
+		hash->capacity = INITIAL_CAPACITY;
 	else
 		hash->capacity = get_next_prime(size);
 
@@ -85,7 +69,7 @@ static void re_allocate(hash* hash, int size)
 	for (int i = 0; i < hash->capacity; ++i)
 		new_bucket[i].state = EMPTY;
 
-	for (int i = 0; i < prev; ++i)
+	for (int i = 0; i < prev_capacity; ++i)
 	{
 		if (hash->bucket[i].state != USED)
 			continue;
@@ -99,7 +83,7 @@ static void re_allocate(hash* hash, int size)
 		}
 
 		new_bucket[idx % hash->capacity] =
-			get_new_bucket(hash->bucket[i].data, USED, hash->bucket[i].hash_value);
+			(node){hash->bucket[i].data, hash->bucket[i].hash_value, USED};
 	}
 	free(hash->bucket);
 	hash->bucket = new_bucket;
@@ -111,7 +95,7 @@ void insert(hash* hash, pair* data)
 		|| (double)hash->size / hash->capacity > MAX_LOAD_FACTOR)
 		re_allocate(hash, hash->capacity * 2);
 	
-	unsigned int hash_value = get_hash((unsigned char*)data->key);
+	unsigned int hash_value = hasing((unsigned char*)data->key);
 	unsigned int idx = hash_value;
 
 	while (hash->bucket[idx % hash->capacity].state == USED)
@@ -121,15 +105,15 @@ void insert(hash* hash, pair* data)
 		++idx;
 	}
 
-	hash->bucket[idx % hash->capacity] = get_new_bucket(data, USED, hash_value);
+	hash->bucket[idx % hash->capacity] = (node){data, hash_value, USED};
 	++hash->size;
 }
 
 void erase(hash* hash, char* key)
 {
-	int idx = get_index(hash, key);
+	int idx = find_idx(hash, key);
 	if (idx == -1)
-		return ;
+		return;
 	
 	free(hash->bucket[idx].data->key);
 	free(hash->bucket[idx].data);
@@ -139,11 +123,11 @@ void erase(hash* hash, char* key)
 
 pair* find(hash* hash, char* key)
 {
-	int idx = get_index(hash, key);
+	int idx = find_idx(hash, key);
 	if (idx == -1)
 		return NULL;
 	
-	return hash->bucket[idx % hash->capacity].data;
+	return hash->bucket[idx].data;
 }
 
 void clear(hash* hash)

@@ -7,6 +7,7 @@
 #include "Pair.h"
 
 #define MAX_LOAD_FACTOR 0.5
+#define INITIAL_CAPACITY 7
 
 typedef enum state
 {
@@ -18,8 +19,8 @@ typedef enum state
 typedef struct node
 {
 	pair* data;
-	state state;
 	unsigned int hash_value;
+	state state;
 } node;
 
 typedef struct hash
