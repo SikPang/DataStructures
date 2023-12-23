@@ -4,7 +4,7 @@
 int main()
 {
 	std::vector<int> a;
-	ks::vector<int> b;
+	ft::vector<int> b;
 
 	(void)a;
 	(void)b;
