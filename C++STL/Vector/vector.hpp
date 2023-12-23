@@ -2,6 +2,7 @@
 
 #include <memory>	// std::allocator, std::allocator_traits
 #include "../Iterator/iterator.hpp"
+#include "../Iterator/reverse_iterator.hpp"
 
 namespace ft
 {
