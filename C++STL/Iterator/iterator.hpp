@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstddef>	// ptrdiff_t
+#include "../TypeTraits/is_same.hpp"
 
 namespace ft
 {
@@ -58,5 +59,9 @@ struct iterator
     typedef Distance    difference_type;
     typedef Category    iterator_category;
 };
+
+template <typename Iter>
+class is_random_access_iterator
+    : integral_constant<bool, is_same<typename iterator_traits<Iter>::iterator_category, random_access_iterator_tag>::value> {};
 
 }
