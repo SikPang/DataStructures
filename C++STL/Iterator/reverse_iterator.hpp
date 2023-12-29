@@ -44,7 +44,6 @@ public:
 
 public:
     inline Iter base() const;
-
 };
 
 template <class Iter1, class Iter2> inline bool operator==(const reverse_iterator<Iter1>& x, const reverse_iterator<Iter2>& y);

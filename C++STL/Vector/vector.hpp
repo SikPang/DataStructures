@@ -1,17 +1,11 @@
 #pragma once
 
 #include <memory>	// std::allocator, std::allocator_traits
-#include "../Iterator/iterator.hpp"
 #include "../Iterator/reverse_iterator.hpp"
+#include "../Iterator/random_access_iterator.hpp"
 
 namespace ft
 {
-
-template <class T>
-class vector_iterator
-{
-
-};
 
 template <class T, class Alloc = std::allocator<T>>
 class vector
@@ -27,8 +21,8 @@ public:
     typedef typename alloc_traits::difference_type      difference_type;
     typedef typename alloc_traits::size_type            size_type;	
 
-    typedef ft::vector_iterator<pointer>                iterator;
-    typedef ft::vector_iterator<const_pointer>          const_iterator;
+    typedef ft::random_access_iterator<pointer>         iterator;
+    typedef ft::random_access_iterator<const_pointer>   const_iterator;
     typedef ft::reverse_iterator<iterator>              reverse_iterator;
     typedef ft::reverse_iterator<const_iterator>        const_reverse_iterator;
 
